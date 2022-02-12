@@ -1,24 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useCallback, useReducer, useState } from 'react';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import './App.css';
+import { BerryList, MyPosts, PokemonList, PokemonListCount } from './components';
+import { PokemonSearch } from './components/PokemonSearch';
+import { QueryKey } from './queries/queryKeys';
 
 function App() {
+  const [shown, toggle] = useReducer((d) => !d, true);
+  const [pokemon, setPokemon] = useState('');
+  const handleChangeSearchPokemon = useCallback((ev) => setPokemon(ev.target.value), []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Hello React Query</h1>
+      <input value={pokemon} onChange={handleChangeSearchPokemon} />
+      <PokemonSearch pokemon={pokemon} />
+      <hr />
+      <button onClick={() => toggle()}>{shown ? 'Hide' : 'Show'}</button>
+      {shown && <PokemonListCount queryKey={QueryKey.pokemon} />}
+      {shown && <PokemonList queryKey={QueryKey.pokemon} />}
+      {shown && <BerryList queryKey={QueryKey.berries} />}
+      <hr />
+      <MyPosts />
+      <ReactQueryDevtools />
     </div>
   );
 }

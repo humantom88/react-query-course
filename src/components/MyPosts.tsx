@@ -3,7 +3,7 @@ import { usePostsQuery } from '../queries/posts.query';
 
 export const MyPosts = () => {
   const userQuery = useUserQuery();
-  const postsQuery = usePostsQuery(userQuery.data?.id);
+  const postsQuery = usePostsQuery({ userId: userQuery.data?.id });
 
   return userQuery.isLoading ? (
     <p>Loading User...</p>
@@ -17,8 +17,8 @@ export const MyPosts = () => {
         <p>Loading User Posts...</p>
       ) : (
         <div>
-          {postsQuery.data?.map(({ body, title }) => (
-            <article>
+          {postsQuery.data?.map(({ body, title, id }) => (
+            <article key={id}>
               <h3>{title}</h3>
               <p>{body}</p>
             </article>

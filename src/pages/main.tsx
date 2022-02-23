@@ -18,6 +18,12 @@ export const MainPage = () => {
         <li>
           <Link to="/example4">Related Posts</Link>
         </li>
+        <li>
+          <Link to="/example5">Server Date</Link>
+        </li>
+        <li>
+          <Link to="/example6">Random Number</Link>
+        </li>
       </ul>
     </div>
   );

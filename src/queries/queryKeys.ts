@@ -4,4 +4,6 @@ export enum QueryKey {
   posts = 'posts',
   post = 'post',
   user = 'user',
+  serverDate = 'serverDate',
+  randomNumber = 'randomNumber',
 }

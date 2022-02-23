@@ -13,6 +13,12 @@ export function PreFetchedPosts() {
     toggle();
   }, [toggle]);
 
+  const handleMouseEnter = (postId: number) => () => {
+    queryClient.prefetchQuery([QueryKey.post, postId], () => fetchPost(postId), {
+      staleTime: 60 * 1000,
+    });
+  };
+
   useEffect(() => {
     queryClient.prefetchQuery(QueryKey.posts, fetchPosts);
   }, [queryClient]);
@@ -30,7 +36,7 @@ export function PreFetchedPosts() {
               <ul>
                 {postsQuery.data?.map((post: Post) => {
                   return (
-                    <li key={post.id}>
+                    <li key={post.id} onMouseEnter={handleMouseEnter(post.id)}>
                       <a href={`/example4/${post.id}`}>{post.title}</a>
                     </li>
                   );
@@ -48,3 +54,5 @@ export function PreFetchedPosts() {
 
 const queryString = 'https://jsonplaceholder.typicode.com/posts';
 const fetchPosts = async () => axios.get(queryString).then((res) => res.data);
+const fetchPost = async (postId: number) =>
+  axios.get(`${queryString}/${postId}`).then((res) => res.data);

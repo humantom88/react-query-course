@@ -27,16 +27,6 @@ const mimeTypes = {
 
 http
   .createServer(function (request, response) {
-    // console.log('request ', request.url);
-
-    // const filePath = '.' + request.url;
-    // if (filePath == './') {
-    //   filePath = './index.html';
-    // }
-
-    // const extname = String(path.extname(filePath)).toLowerCase();
-    // const contentType = mimeTypes[extname] || 'application/octet-stream';
-
     const [_, controller] = Object.entries(routes).find((route) => {
       const [path] = route;
       return request.url.includes(path);
@@ -47,6 +37,16 @@ http
     } else {
       sendJSON(response, { error: 'No Api Found' });
     }
+
+    // console.log('request ', request.url);
+
+    // const filePath = '.' + request.url;
+    // if (filePath == './') {
+    //   filePath = './index.html';
+    // }
+
+    // const extname = String(path.extname(filePath)).toLowerCase();
+    // const contentType = mimeTypes[extname] || 'application/octet-stream';
 
     // fs.readFile(filePath, function (error, content) {
     //   if (error) {
@@ -66,7 +66,10 @@ http
     // });
   })
   .listen(8125);
+
 console.log('Server running at http://localhost:8125/');
+
+// utils
 
 function sendJSON(response, data) {
   const headers = {

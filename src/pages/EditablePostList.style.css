@@ -1,0 +1,8 @@
+.titleField {
+  display: flex;
+  flex-direction: column;
+  max-width: 300px;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 100px;
+}

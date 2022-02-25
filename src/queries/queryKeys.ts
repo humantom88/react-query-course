@@ -6,4 +6,5 @@ export enum QueryKey {
   user = 'user',
   serverDate = 'serverDate',
   randomNumber = 'randomNumber',
+  editablePosts = 'editablePosts',
 }

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
+import { HOSTNAME } from '../config';
 import { QueryKey } from './queryKeys';
 
 interface ServerDate {
@@ -10,7 +11,7 @@ export const useServerDateQuery = () =>
   useQuery<ServerDate>(
     QueryKey.serverDate,
     () => {
-      return axios.get('http://127.0.0.1:8125/api/serverDate').then((res) => res.data);
+      return axios.get(`${HOSTNAME}/api/serverDate`).then((res) => res.data);
     },
     {
       refetchInterval: 1000, // Not running in background by default

@@ -1,10 +1,12 @@
 import http from 'http';
+import { postController } from './controllers/post.js';
 import { randomController } from './controllers/random.js';
 import { timeController } from './controllers/time.js';
 
 const routes = {
   '/api/serverDate': timeController,
   '/api/random': randomController,
+  '/api/posts': postController,
 };
 
 const mimeTypes = {
@@ -26,14 +28,19 @@ const mimeTypes = {
 };
 
 http
-  .createServer(function (request, response) {
+  .createServer(async function (request, response) {
+    if (request.method === 'OPTIONS') {
+      sendOptions(response);
+      return;
+    }
+
     const [_, controller] = Object.entries(routes).find((route) => {
       const [path] = route;
       return request.url.includes(path);
     });
 
     if (controller) {
-      sendJSON(response, controller());
+      sendJSON(response, await controller(request, response));
     } else {
       sendJSON(response, { error: 'No Api Found' });
     }
@@ -75,6 +82,7 @@ function sendJSON(response, data) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
+    'Access-Control-Allow-Headers': 'content-type',
     'Access-Control-Max-Age': 2592000,
     'Content-Type': mimeTypes['.json'],
   };
@@ -86,4 +94,18 @@ function sendJSON(response, data) {
     response.writeHead(200, headers);
     response.end(buffer, 'utf-8');
   }, 1000);
+}
+
+function sendOptions(response) {
+  const headers = {};
+  // IE8 does not allow domains to be specified, just the *
+  // headers["Access-Control-Allow-Origin"] = req.headers.origin;
+  headers['Access-Control-Allow-Origin'] = '*';
+  headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE, OPTIONS';
+  headers['Access-Control-Allow-Credentials'] = false;
+  headers['Access-Control-Max-Age'] = '86400'; // 24 hours
+  headers['Access-Control-Allow-Headers'] =
+    'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept';
+  response.writeHead(200, headers);
+  response.end();
 }

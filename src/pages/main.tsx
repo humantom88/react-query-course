@@ -24,6 +24,9 @@ export const MainPage = () => {
         <li>
           <Link to="/example6">Random Number</Link>
         </li>
+        <li>
+          <Link to="/example8">Editable Posts</Link>
+        </li>
       </ul>
     </div>
   );

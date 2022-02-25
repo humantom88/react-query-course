@@ -38,14 +38,19 @@ export function EditablePosts() {
           <>
             <h3>Posts {postsQuery.isLoading ? LOADING_DOTS : null}</h3>
             <ul>
-              {postsQuery.data?.map((post: Post) => (
-                <li key={post.title}>{post.title}</li>
+              {postsQuery.data?.map((post: Post, idx: number) => (
+                <li key={`${post.title}${idx}`}>{post.title}</li>
               ))}
             </ul>
           </>
         )}
       </div>
-      <PostForm onSubmit={handleSubmit} clearOnSubmit isLoading={postsMutation.isLoading} />
+      <PostForm
+        onSubmit={handleSubmit}
+        clearOnSubmit
+        isLoading={postsMutation.isLoading}
+        error={postsMutation.error?.message}
+      />
     </div>
   );
 }
@@ -54,9 +59,15 @@ interface PostFormProps {
   onSubmit: (values: NewPostAttributes) => void;
   clearOnSubmit?: boolean;
   isLoading?: boolean;
+  error?: string;
 }
 
-export const PostForm = ({ onSubmit, clearOnSubmit = false, isLoading = false }: PostFormProps) => {
+export const PostForm = ({
+  onSubmit,
+  clearOnSubmit = false,
+  error,
+  isLoading = false,
+}: PostFormProps) => {
   const [title, setTitle] = useState<string>('');
 
   const handleChangeTitle = useCallback(
@@ -83,6 +94,7 @@ export const PostForm = ({ onSubmit, clearOnSubmit = false, isLoading = false }:
       <div className="titleField">
         <label htmlFor="title">{TITLE_FIELD_LABEL}</label>
         <input name="title" placeholder={TITLE_FIELD_PLACEHOLDER} onChange={handleChangeTitle} />
+        <span className="error">{error}</span>
         <button disabled={isLoading}>{isLoading ? SAVING : CREATE_POST_BUTTON_TEXT}</button>
       </div>
     </form>

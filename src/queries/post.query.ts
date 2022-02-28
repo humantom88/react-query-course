@@ -3,7 +3,7 @@ import { QueryClient, useQuery } from 'react-query';
 import { QueryKey } from './queryKeys';
 import { Post } from './types';
 
-interface PostQueryParameters {
+export interface PostQueryParameters {
   postId?: string;
   queryClient: QueryClient;
 }

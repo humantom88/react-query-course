@@ -1,11 +1,12 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQueryClient } from 'react-query';
+import { Link } from 'react-router-dom';
 import {
   NewPostAttributes,
   useEditablePostsQuery,
   useCreatePostMutation,
-} from '../queries/editablePosts.query';
-import { Post } from '../queries/types';
+} from '../../queries/editablePosts.query';
+import { Post } from '../../queries/types';
 
 import './EditablePostList.style.css';
 
@@ -15,6 +16,7 @@ const TITLE_FIELD_LABEL = 'Title';
 const TITLE_FIELD_PLACEHOLDER = 'Enter post title';
 const CREATE_POST_BUTTON_TEXT = 'Create Post';
 const CREATE_NEW_POST = 'Create New Post';
+const SAVE_CHANGES = 'Save Changes';
 const SAVING = 'Saving...';
 
 export function EditablePosts() {
@@ -39,7 +41,9 @@ export function EditablePosts() {
             <h3>Posts {postsQuery.isLoading ? LOADING_DOTS : null}</h3>
             <ul>
               {postsQuery.data?.map((post: Post, idx: number) => (
-                <li key={`${post.title}${idx}`}>{post.title}</li>
+                <li key={`${post.title}${idx}`}>
+                  <Link to={`/example8/${post.id || idx}`}>{post.title}</Link>
+                </li>
               ))}
             </ul>
           </>
@@ -47,7 +51,6 @@ export function EditablePosts() {
       </div>
       <PostForm
         onSubmit={handleSubmit}
-        clearOnSubmit
         isLoading={postsMutation.isLoading}
         error={postsMutation.error?.message}
       />
@@ -56,17 +59,21 @@ export function EditablePosts() {
 }
 
 interface PostFormProps {
+  initialData?: Post;
   onSubmit: (values: NewPostAttributes) => void;
   clearOnSubmit?: boolean;
   isLoading?: boolean;
   error?: string;
+  isEdit?: boolean;
 }
 
 export const PostForm = ({
+  initialData,
   onSubmit,
   clearOnSubmit = false,
   error,
   isLoading = false,
+  isEdit = false,
 }: PostFormProps) => {
   const [title, setTitle] = useState<string>('');
 
@@ -80,7 +87,9 @@ export const PostForm = ({
   const handleSubmit = useCallback(
     (ev) => {
       ev.preventDefault();
+
       onSubmit({ title });
+
       if (clearOnSubmit) {
         setTitle('');
       }
@@ -88,15 +97,34 @@ export const PostForm = ({
     [title, onSubmit, clearOnSubmit],
   );
 
+  useEffect(() => {
+    setTitle(initialData?.title ?? '');
+  }, [initialData?.title]);
+
   return (
     <form onSubmit={handleSubmit} method="get">
-      <h3>{CREATE_NEW_POST}</h3>
+      {isEdit ? null : <h3>{CREATE_NEW_POST}</h3>}
       <div className="titleField">
         <label htmlFor="title">{TITLE_FIELD_LABEL}</label>
-        <input name="title" placeholder={TITLE_FIELD_PLACEHOLDER} onChange={handleChangeTitle} />
+        <input
+          name="title"
+          placeholder={TITLE_FIELD_PLACEHOLDER}
+          onChange={handleChangeTitle}
+          value={title}
+        />
         <span className="error">{error}</span>
-        <button disabled={isLoading}>{isLoading ? SAVING : CREATE_POST_BUTTON_TEXT}</button>
+        <button disabled={isLoading}>{getButtonText({ isLoading, isEdit })}</button>
       </div>
     </form>
   );
+};
+
+// private
+
+const getButtonText = ({ isLoading, isEdit }: { isLoading: boolean; isEdit: boolean }) => {
+  if (isLoading) {
+    return SAVING;
+  }
+
+  return isEdit ? SAVE_CHANGES : CREATE_POST_BUTTON_TEXT;
 };

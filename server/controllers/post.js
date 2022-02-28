@@ -1,22 +1,24 @@
 const databaseStub = [
-  { title: 'Post 1' },
-  { title: 'Post 2' },
-  { title: 'Post 3' },
-  { title: 'Post 4' },
-  { title: 'Post 5' },
+  { id: 1, title: 'Post 1' },
+  { id: 2, title: 'Post 2' },
+  { id: 3, title: 'Post 3' },
+  { id: 4, title: 'Post 4' },
+  { id: 5, title: 'Post 5' },
 ];
 
 export const postController = async (request) => {
   if (request.method === 'GET') {
-    return databaseStub;
+    const postId = request.url.split('/').pop();
+
+    const postIdNumber = postId ? Number(postId) : -1;
+
+    return postIdNumber > -1 ? findPostById(Number(postIdNumber)) : databaseStub;
   }
 
   const data = await readData(request);
-  const newPost = { ...data };
+  const post = upsertPost(data);
 
-  databaseStub.push(newPost);
-
-  return newPost;
+  return post;
 };
 
 // utils
@@ -32,3 +34,30 @@ const readData = async (request) => {
 
   return JSON.parse(data);
 };
+
+function generateId() {
+  return (
+    databaseStub.reduce((acc, { id }) => {
+      return acc > id ? acc : id;
+    }, 0) + 1
+  );
+}
+
+function upsertPost({ title, id }) {
+  const existedPostIndex = databaseStub.findIndex((post) => post.id === id) ?? -1;
+
+  if (existedPostIndex > -1) {
+    databaseStub[existedPostIndex].title = title;
+    return databaseStub[existedPostIndex];
+  }
+
+  const post = { title, id: generateId() };
+
+  databaseStub.push(post);
+
+  return post;
+}
+
+function findPostById(id) {
+  return databaseStub.find((post) => post.id === id);
+}

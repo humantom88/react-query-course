@@ -5,7 +5,8 @@ import { Example1Page, Example2Page, Example3Page, MainPage } from './pages';
 import { ServerDate } from './components/ServerDate';
 import { RandomNumber } from './components/RandomNumber';
 import { PreFetchedPosts } from './components/PreFetchPosts';
-import { EditablePosts } from './pages/EditablePostList';
+import { EditablePosts } from './components/EditablePostList/EditablePostList';
+import { EditablePostForm } from './components/EditablePostForm/EditablePostForm';
 
 export const Router = () => (
   <Routes>
@@ -18,6 +19,7 @@ export const Router = () => (
     <Route path="/example5" element={<ServerDate />} />
     <Route path="/example6" element={<RandomNumber />} />
     <Route path="/example7" element={<PreFetchedPosts />} />
+    <Route path="/example8/:postId" element={<EditablePostForm />} />
     <Route path="/example8" element={<EditablePosts />} />
   </Routes>
 );

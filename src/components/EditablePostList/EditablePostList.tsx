@@ -76,7 +76,7 @@ export const PostForm = ({
   isLoading = false,
   isEdit = false,
 }: PostFormProps) => {
-  const [title, setTitle] = useState<string>('');
+  const [title, setTitle] = useState<string>(initialData?.title ?? '');
 
   const handleChangeTitle = useCallback(
     (ev) => {

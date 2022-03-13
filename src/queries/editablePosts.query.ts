@@ -38,15 +38,50 @@ interface Response {
 }
 
 export const useCreatePostMutation = (queryClient: QueryClient) => {
-  return useMutation<Response, AxiosError<PostError>, NewPostAttributes, Response>(
+  return useMutation<Post[], AxiosError<PostError>, NewPostAttributes, Post[]>(
     QueryKey.editablePosts,
     (values: NewPostAttributes) => axios.post(`${HOSTNAME}/api/posts`, values),
     {
+      onMutate: (values: NewPostAttributes) => {
+        // This prevents race
+        queryClient.cancelQueries('posts'); // To make sure, there are no updates in progress
+
+        const rollbackValue = queryClient.getQueryData<Post[]>('posts');
+
+        const optimisticPost = {
+          ...values,
+          id: Date.now()
+        };
+
+        const updater = (oldPosts?: Post[]) => [
+          ...(oldPosts ?? []), 
+          optimisticPost
+        ];
+
+        queryClient.setQueryData(
+          'posts',
+          updater,
+        );
+
+        // Either pass values and complete processing in onError
+        return rollbackValue; // Goest to 3rd argument of onError
+
+        // Or return a callback
+        /*
+        return () => queryClient.setQueryData('posts', rollbackValue);
+        */
+      },
       onSuccess: () => {
         queryClient.invalidateQueries(QueryKey.editablePosts);
       },
-      onError: (error) => {
+      onError: (error, values, rollbackValue) => {
         console.log(error, error.response);
+        // Either
+        queryClient.setQueryData('posts', rollbackValue); // rollbackValue comes from onMutate
+        // Or
+        // if (rollbackValue) {
+        //   rollbackValue()
+        // }
       },
       onSettled: () => {
         queryClient.invalidateQueries(QueryKey.editablePosts);
@@ -58,10 +93,11 @@ export const useCreatePostMutation = (queryClient: QueryClient) => {
 export const useEditPostMutation = (values: EditPostAttributes, queryClient: QueryClient) => {
   return useMutation<Response, AxiosError<PostError>, EditPostAttributes, Response>(
     QueryKey.editablePosts,
-    (values: EditPostAttributes) => axios.post(`${HOSTNAME}/api/posts`, values),
+    (values: EditPostAttributes) => axios.patch(`${HOSTNAME}/api/posts/${values.id}`, values),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(QueryKey.editablePosts);
+      onSuccess: (data, values) => {
+        queryClient.setQueryData(['post', String(values.id)], data); // User will see update ASAP
+        queryClient.invalidateQueries(['post', String(values.id)]); // Just to make sure that data is consistent
       },
       onError: (error) => {
         console.log(error, error.response);

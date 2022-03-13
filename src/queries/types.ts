@@ -31,8 +31,8 @@ export interface User {
 
 export interface Post {
   id: number;
-  body: string;
-  userId: number;
+  body?: string;
+  userId?: number;
   title: string;
 }
 

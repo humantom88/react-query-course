@@ -54,6 +54,7 @@ export function EditablePosts() {
         isLoading={postsMutation.isLoading}
         error={postsMutation.error?.message}
       />
+      {postsMutation.isError && <pre>{postsMutation.error.response?.data ?? postsMutation.error.message}</pre>}
     </div>
   );
 }

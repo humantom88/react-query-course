@@ -39,10 +39,16 @@ http
       return request.url.includes(path);
     });
 
-    if (controller) {
-      sendJSON(response, await controller(request, response));
-    } else {
-      sendJSON(response, { error: 'No Api Found' });
+    try {
+      if (controller) {
+        sendJSON(response, await controller(request, response));
+      } else {
+        sendJSON(response, { error: 'No Api Found' });
+      }
+    } catch(e) {
+      response.writeHead(422, getCorsHeaders());
+      const buffer = Buffer.from(e.message, 'utf-8');
+      response.end(buffer, 'utf-8');
     }
 
     // console.log('request ', request.url);
@@ -78,20 +84,22 @@ console.log('Server running at http://localhost:8125/');
 
 // utils
 
-function sendJSON(response, data) {
-  const headers = {
+function getCorsHeaders () {
+  return {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
     'Access-Control-Allow-Headers': 'content-type',
     'Access-Control-Max-Age': 2592000,
     'Content-Type': mimeTypes['.json'],
-  };
+  }
+}
 
+function sendJSON(response, data) {
   const content = JSON.stringify(data);
   const buffer = Buffer.from(content, 'utf-8');
 
   setTimeout(() => {
-    response.writeHead(200, headers);
+    response.writeHead(200, getCorsHeaders());
     response.end(buffer, 'utf-8');
   }, 1000);
 }

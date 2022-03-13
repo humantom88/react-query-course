@@ -49,7 +49,7 @@ export const useCreatePostMutation = (queryClient: QueryClient) => {
         console.log(error, error.response);
       },
       onSettled: () => {
-        // console.log('Whatever happens');
+        queryClient.invalidateQueries(QueryKey.editablePosts);
       },
     },
   );

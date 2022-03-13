@@ -16,6 +16,11 @@ export const postController = async (request) => {
   }
 
   const data = await readData(request);
+
+  if (data.title === 'Bad Post') {
+    throw new Error('Do not use words "Bad Post" in post title');
+  }
+
   const post = upsertPost(data);
 
   return post;
